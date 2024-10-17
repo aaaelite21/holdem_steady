@@ -1,11 +1,14 @@
-from deck import Card, Rank, Suit
-from holdem import TexasHoldem
 
+from src.holdem import TexasHoldem
 game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
 
 # rate = game.simulate(hand=[Card(Rank.ACE, Suit.SPADES), Card(Rank.ACE, Suit.CLUBS)], number_of_players=3, number_of_rounds=1000)
 
 # print(rate)
+
+game.print_player_standings()
+
+game.take_blinds()
 
 game.print_player_standings()
 
