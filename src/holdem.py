@@ -1,8 +1,8 @@
 from enum import Enum
 from itertools import combinations
 from typing import Counter
-from deck import Card, Deck
-from player import Player, Attitude, PlayerActions, PlayerState
+from .deck import Card, Deck
+from .player import Player, Attitude, PlayerActions, PlayerState
 
 class Hands(Enum):
     HIGH_CARD = 1

@@ -8,7 +8,7 @@ game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
 
 game.print_player_standings()
 
-game.take_blinds()
+# game.take_blinds()
 
 game.print_player_standings()
 
