@@ -29,11 +29,11 @@ class Player:
         self.chips = chips
         self.attitude = attitude
         self.state = PlayerState.ACTIVE
-        self.hand = []
+        self.cards = []
 
     def action(self, game_state):
         if self.attitude == Attitude.PLAYER:
-            print(f"Player {self.name}, your hand is: {self.hand}")
+            print(f"Player {self.name}, your hand is: {self.cards}")
             if len(game_state.board_cards) > 0:
                 print(f"The board cards are: {game_state.board_cards}")
             available_actions = self.available_actions(game_state)
@@ -72,7 +72,7 @@ class Player:
 
 
     def receive_card(self, card):
-        self.hand.append(card)
+        self.cards.append(card)
 
     def bet(self, amount):
         if amount > self.chips:
@@ -81,17 +81,12 @@ class Player:
         return amount
 
     def fold(self):
-        old_hand = self.hand
-        self.hand = []
+        old_hand = self.cards
+        self.cards = []
         return old_hand
 
     def show_hand(self):
-        return self.hand
+        return self.cards
 
     def __str__(self):
         return f"Player {self.name} with {self.chips} chips and attitude {self.attitude.value}"
-
-# Example usage
-if __name__ == "__main__":
-    player = Player(name="Alex", chips=1000, attitude=Attitude.PLAYER)
-    print(player)

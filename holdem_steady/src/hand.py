@@ -1,29 +1,33 @@
+from itertools import combinations
 from typing import Counter
-from deck import Card, Suit, Rank
+from src.card import Card
 from src.holdem import Hands
 
 # hand.py
 
 class Hand:
-    def __init__(self):
-        self.cards = []
-
-    def add_card(self, card: Card):
-        self.cards.append(card)
-
-    def remove_card(self, card: Card):
-        self.cards.remove(card)
-
-    def get_value(self):
-        # Assuming Card class has a value attribute
-        return sum(card.value for card in self.cards)
-
-    def __str__(self):
-        return ', '.join(str(card) for card in self.cards)
-    
     @staticmethod
     def from_strings(card_strings: list[str]):
         return Hand([Card.from_string(card_str) for card_str in card_strings])
+
+    def __init__(self, cards: list[Card] = None):
+        self.cards = []
+
+        self.value = None
+
+        if cards is not None:
+            self.cards = cards
+
+    def add_card(self, card: Card):
+        self.value = None
+        self.cards.append(card)
+
+    def remove_card(self, card: Card):
+        self.value = None
+        self.cards.remove(card)
+
+    def __str__(self):
+        return ', '.join(str(card) for card in self.cards)
     
     def score_hand(self, cards:list[Card]) -> tuple[Hands, int, list[Card]]:
         # Placeholder for hand scoring logic

@@ -1,6 +1,8 @@
 from enum import Enum
 from itertools import combinations
 from typing import Counter
+
+from src.hand import Hand
 from .deck import Card, Deck
 from .player import Player, Attitude, PlayerActions, PlayerState
 
@@ -48,8 +50,8 @@ class TexasHoldem:
     def deal(self):
         self.deck.shuffle()
         for player in self.players:
-            while len(player.hand) < 2:
-                player.hand.append(self.deck.draw_card())
+            while len(player.cards) < 2:
+                player.cards.append(self.deck.draw_card())
 
     def round_of_betting(self):
         for player in self.players:
@@ -80,9 +82,9 @@ class TexasHoldem:
         best_hands = []
         
         for player in self.players:
-            combined_cards = player.hand + self.board_cards
-            best_rank, high_card, five_card_hand = self.score_hand(combined_cards)
-            best_hands.append((player.name, best_rank, high_card, five_card_hand))
+            combined_cards = player.cards + self.board_cards
+            hand = Hand(combined_cards)
+            best_hands.append((player.name, hand))
 
         #sort best_rank and high_card
         best_hands.sort(reverse=True, key=lambda x: x[2])
@@ -114,13 +116,11 @@ class TexasHoldem:
         chips_string = "\t".join([str(player.chips) for player in self.players])
         print(f"Players:\t{name_string}\nChip Count:\t{chips_string}")
 
-
-
     def simulate(self, hand, number_of_players=4, number_of_rounds=1000):
         wins = [0] * number_of_players
         for _ in range(number_of_rounds):
             sub_game = TexasHoldem([Player(f"Player {i}", attitude=Attitude.PASSIVE) for i in range(number_of_players)])
-            sub_game.players[0].hand = [sub_game.deck.draw_specific_card(card.rank, card.suit) for card in hand]
+            sub_game.players[0].cards = [sub_game.deck.draw_specific_card(card.rank, card.suit) for card in hand]
             sub_game.deal()
             sub_game.flop()
             sub_game.turn()
