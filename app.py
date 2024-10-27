@@ -1,7 +1,14 @@
 
-from src.holdem import TexasHoldem
+from src.hand import Hand
+#from src.holdem import TexasHoldem
 
-game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
+#game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
+
+hand = Hand.from_strings(["AD", "KD", "QD", "JD", "TD"])
+print(hand.cards)
+
+print(hand.is_royal_flush())
+
 
 # rate = game.simulate(hand=[], number_of_players=5, number_of_rounds=1000)
 

@@ -1,8 +1,11 @@
+from dataclasses import dataclass
 from enum import Enum
 from itertools import combinations
 from typing import Counter
 from src.card import Card
-class Hands(Enum):
+
+
+class PokerHands(Enum):
     HIGH_CARD = 1
     PAIR_OF_TWOS = 2
     PAIR_OF_THREES = 3
@@ -26,6 +29,28 @@ class Hands(Enum):
     STRAIGHT_FLUSH = 21
     ROYAL_FLUSH = 22
 
+    # override the comparator functions
+    def __lt__(self, other):
+        return self.value < other.value
+    def __gt__(self, other):
+        return self.value > other.value
+    def __eq__(self, other):
+        return self.value == other.value
+    def __le__(self, other):
+        return self.value <= other.value
+    def __ge__(self, other):
+        return self.value >= other.value
+    def __ne__(self, other):
+        return self.value != other.value
+    def __str__(self):
+        return self.name.replace("_", " ").title()
+
+@dataclass(frozen=True)
+class PokerScore:
+    hand: PokerHands
+    tie_breaker: int | None = None
+    cards: list[Card] | None = None
+
 class Hand:
     @staticmethod
     def from_strings(card_strings: list[str]):
@@ -34,10 +59,86 @@ class Hand:
     def __init__(self, cards: list[Card] = None):
         self.cards = []
 
-        self.value = None
+        self.value:PokerScore = None
 
         if cards is not None:
             self.cards = cards
+
+        self.last_known_cards  = self.cards
+          
+    def __eq__(self, other):
+        if not isinstance(other, Hand):
+            return False
+        self.score_hand()
+        other.score_hand()
+        return self.value.hand == other.value.hand and self.value.tie_breaker == other.value.tie_breaker
+    
+    def __lt__(self, other):
+        if not isinstance(other, Hand):
+            raise NotImplementedError(f"Cannot compare Hand with {type(other)}")
+        
+        self.score_hand()
+        other.score_hand()
+
+        if self.value.hand < other.value.hand:
+            return True
+        
+        if self.value.hand == other.value.hand and self.value.tie_breaker < other.value.tie_breaker:
+            return True
+    
+        return False
+    
+    def __gt__(self, other):
+        if not isinstance(other, Hand):
+            raise NotImplementedError(f"Cannot compare Hand with {type(other)}")
+        
+        self.score_hand()
+        other.score_hand()
+
+        if self.value.hand > other.value.hand:
+            return True
+        
+        if self.value.hand == other.value.hand and self.value.tie_breaker > other.value.tie_breaker:
+            return True
+    
+        return False
+    
+    def __le__(self, other):
+        if not isinstance(other, Hand):
+            raise NotImplementedError(f"Cannot compare Hand with {type(other)}")
+        
+        self.score_hand()
+        other.score_hand()
+        
+        if self.value.hand == other.value.hand and self.value.tie_breaker > other.value.tie_breaker:
+            return False
+        
+        if self.value.hand > other.value.hand:
+            return False
+    
+        return True
+    
+    def __ge__(self, other):
+        if not isinstance(other, Hand):
+            raise NotImplementedError(f"Cannot compare Hand with {type(other)}")
+        
+        self.score_hand()
+        other.score_hand()
+
+        if self.value.hand == other.value.hand and self.value.tie_breaker < other.value.tie_breaker:
+            return False
+        
+        if self.value.hand < other.value.hand:
+            return False
+    
+        return True
+    
+    def __ne__(self, other):
+        if not isinstance(other, Hand):
+            return True
+        self.score_hand()
+        other.score_hand()
+        return self.value.hand != other.value.hand or self.value.tie_breaker != other.value.tie_breaker
 
     def add_card(self, card: Card):
         self.value = None
@@ -50,48 +151,46 @@ class Hand:
     def __str__(self):
         return ', '.join(str(card) for card in self.cards)
     
-    def score_hand(self, cards:list[Card]) -> tuple[Hands, int, list[Card]]:
-        # Placeholder for hand scoring logic
-        all_combinations = combinations(cards, 5)
+    def score_hand(self) -> PokerScore:
+        if self.value is not None and self.last_known_cards == self.cards:
+            return self.value
+        all_combinations = combinations(self.cards, 5)
 
-        best_high_card = None
-        best_rank = None
-        best_hand = None
+        best_score:PokerScore  = None
 
         for combination in all_combinations:
-            rank, high_card = self.rank_hand(combination)
-            if best_rank is None or rank > best_rank or (best_rank == rank and high_card > best_high_card):
-                best_rank = rank
-                best_high_card = high_card
-                best_hand = combination
+            hand_score = self.rank_hand(combination)
+            if best_score is None or hand_score.hand > best_score.hand or (best_score.hand == hand_score.hand and hand_score.tie_breaker > best_score.tie_breaker):
+                best_score = hand_score
 
-            return best_rank, best_high_card, best_hand
+            self.value = hand_score
+        return best_score
     
-    def rank_hand(self, cards) -> tuple[int, int]:
+    def rank_hand(self, cards) -> PokerScore:
         # Helper function to get the rank of a hand
         if self.is_royal_flush(cards):
-            return (Hands.ROYAL_FLUSH, self.get_high_card(cards))
+            return PokerScore(PokerHands.ROYAL_FLUSH, self.get_high_card(cards), cards)
         elif self.is_straight_flush(cards):
-            return (Hands.STRAIGHT_FLUSH, self.get_high_card(cards))
+            return PokerScore(PokerHands.STRAIGHT_FLUSH, self.get_high_card(cards), cards)
         elif self.is_four_of_a_kind(cards):
-            return (Hands.FOUR_OF_A_KIND, self.get_high_card(cards))
+            return PokerScore(PokerHands.FOUR_OF_A_KIND, self.get_high_card(cards), cards)
         elif self.is_full_house(cards):
-            return (Hands.FULL_HOUSE, self.get_high_card(cards))
+            return PokerScore(PokerHands.FULL_HOUSE, self.get_high_card(cards), cards)
         elif self.is_flush(cards):
-            return (Hands.FLUSH, self.get_high_card(cards))
+            return PokerScore(PokerHands.FLUSH, self.get_high_card(cards), cards)
         elif self.is_straight(cards):
-            return (Hands.STRAIGHT, self.get_high_card(cards))
+            return PokerScore(PokerHands.STRAIGHT, self.get_high_card(cards), cards)
         elif self.is_three_of_a_kind(cards):
-            return (Hands.THREE_OF_A_KIND, self.get_high_card(cards))
+            return PokerScore(PokerHands.THREE_OF_A_KIND, self.get_high_card(cards), cards)
         elif self.is_two_pair(cards):
-            return (Hands.TWO_PAIR, self.get_high_card(cards))
+            return PokerScore(PokerHands.TWO_PAIR, self.get_high_card(cards)), cards
         elif self.is_one_pair(cards):
             pair_value = self.get_one_pair_rank(cards)  # Get the rank of the pair
             kickers = sorted([card.rank.value for card in cards if card.rank.value != pair_value], reverse=True)  # Kickers are the highest other cards
-            pair = Hands(pair_value + 1)  # Pair of twos is rank 2, etc.
-            return (pair, max(kickers))
+            pair = PokerHands(pair_value + 1)  # Pair of twos is rank 2, etc.
+            return PokerScore(pair, max(kickers), cards)
         else:
-            return (Hands.HIGH_CARD, self.get_high_card(cards))
+            return PokerScore(PokerHands.HIGH_CARD, self.get_high_card(cards), cards)
     
     # get_high_card
     def get_high_card(self, cards):
