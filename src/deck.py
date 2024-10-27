@@ -1,5 +1,6 @@
 import random
 from enum import Enum
+from .card import Card, Rank, Suit
 class Deck:
     def __init__(self):
         self.reset()

@@ -1,8 +1,7 @@
 
-from src.deck import Card, Rank, Suit, cards_from_string
 from src.holdem import TexasHoldem
 
- # game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
+game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
 
 # rate = game.simulate(hand=[], number_of_players=5, number_of_rounds=1000)
 

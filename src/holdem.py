@@ -2,38 +2,14 @@ from enum import Enum
 from itertools import combinations
 from typing import Counter
 
-from src.hand import Hand
-from .deck import Card, Deck
+from .hand import Hand
 from .player import Player, Attitude, PlayerActions, PlayerState
+from .deck import Deck
 
 class Round():
     def __init__(self, game):
         self.better:Player = None
         self.bet_amount:int = 0
-
-class Hands(Enum):
-    HIGH_CARD = 1
-    PAIR_OF_TWOS = 2
-    PAIR_OF_THREES = 3
-    PAIR_OF_FOURS = 4
-    PAIR_OF_FIVES = 5
-    PAIR_OF_SIXES = 6
-    PAIR_OF_SEVENS = 7
-    PAIR_OF_EIGHTS = 8
-    PAIR_OF_NINES = 9
-    PAIR_OF_TENS = 10
-    PAIR_OF_JACKS = 11
-    PAIR_OF_QUEENS = 12
-    PAIR_OF_KINGS = 13
-    PAIR_OF_ACES = 14
-    TWO_PAIR = 15
-    THREE_OF_A_KIND = 16
-    STRAIGHT = 17
-    FLUSH = 18
-    FULL_HOUSE = 19
-    FOUR_OF_A_KIND = 20
-    STRAIGHT_FLUSH = 21
-    ROYAL_FLUSH = 22
 
     def __str__(self):
         return self.name.replace("_", " ").title()
