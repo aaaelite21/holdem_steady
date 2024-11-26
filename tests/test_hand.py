@@ -3,7 +3,7 @@ import unittest
 from src.hand import Hand, PokerScore, PokerHands
 
 # Your test cases will go here
-class TestHoldem(unittest.TestCase):
+class TestHoldemHand(unittest.TestCase):
 
     def test_equal(self):
         hand_1 = Hand()
@@ -86,6 +86,33 @@ class TestHoldem(unittest.TestCase):
     def test_get_high_card(self):
         hand = Hand.from_strings(["9D", "KH", "JS", "KD", "TD"])
         assert hand.get_high_card(hand.cards) == 13, "High card was not KD"
+    
+    def test_score_hand_high_card(self):
+        common_cards = ["9D", "4H", "7S", "8C", "5D"]
+        hand = Hand.from_strings(["AS", "2C"] + common_cards)
+        score = hand.score_hand()
+        assert score.hand == PokerHands.HIGH_CARD, "Hand was not scored correctly"
+    
+    def test_score_hand_one_pair(self):
+        common_cards = ["AD", "4H", "7S", "8C", "5D"]
+        hand = Hand.from_strings(["2S", "2D"] + common_cards)
+        score = hand.score_hand()
+        assert score.hand == PokerHands.PAIR_OF_TWOS, "Hand was not scored correctly"
+        assert score.tie_breaker == 14, "Tie breaker was not 14"
+    
+    def test_score_hand_one_pair(self):
+        common_cards = ["AD", "4H", "7S", "8C", "5D"]
+        hand = Hand.from_strings(["2S", "2D"] + common_cards)
+        score = hand.score_hand()
+        assert score.hand == PokerHands.PAIR_OF_TWOS, "Hand was not scored correctly"
+        assert score.tie_breaker == 14, "Tie breaker was not 14"
+    
+    def test_score_hand_two_pair(self):
+        common_cards = ["AD", "4H", "7S", "8C", "5D"]
+        hand = Hand.from_strings(["7C", "8D"] + common_cards)
+        score = hand.score_hand()
+        assert score.hand == PokerHands.TWO_PAIR_EIGHTS_HIGH, "Hand was not scored correctly"
+        assert score.tie_breaker == 14, "Tie breaker was not 14"
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,11 +3,14 @@ from src.hand import Hand
 #from src.holdem import TexasHoldem
 
 #game = TexasHoldem(["Alice", "Bob", "Carol", "David"])
+common_cards = ["9D", "4H", "7S", "8C", "TD"]
+hand_1 = Hand.from_strings(["AS", "2C"] + common_cards)
+hand_2 = Hand.from_strings(["KS", "QC"] + common_cards)
+print(hand_1.score_hand())
+print(hand_2.score_hand())
+print(hand_1 > hand_2)
 
-hand = Hand.from_strings(["AD", "KD", "QD", "JD", "TD"])
-print(hand.cards)
 
-print(hand.is_royal_flush())
 
 
 # rate = game.simulate(hand=[], number_of_players=5, number_of_rounds=1000)

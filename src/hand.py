@@ -20,14 +20,25 @@ class PokerHands(Enum):
     PAIR_OF_QUEENS = 12
     PAIR_OF_KINGS = 13
     PAIR_OF_ACES = 14
-    TWO_PAIR = 15
-    THREE_OF_A_KIND = 16
-    STRAIGHT = 17
-    FLUSH = 18
-    FULL_HOUSE = 19
-    FOUR_OF_A_KIND = 20
-    STRAIGHT_FLUSH = 21
-    ROYAL_FLUSH = 22
+    TWO_PAIR_THREES_HIGH = 15
+    TWO_PAIR_FOURS_HIGH = 16
+    TWO_PAIR_FIVES_HIGH = 17
+    TWO_PAIR_SIXES_HIGH = 18
+    TWO_PAIR_SEVENS_HIGH = 19
+    TWO_PAIR_EIGHTS_HIGH = 20
+    TWO_PAIR_NINES_HIGH = 21
+    TWO_PAIR_TENS_HIGH = 22
+    TWO_PAIR_JACKS_HIGH = 23
+    TWO_PAIR_QUEENS_HIGH = 24
+    TWO_PAIR_KINGS_HIGH = 25
+    TWO_PAIR_ACES_HIGH = 26
+    THREE_OF_A_KIND = 27
+    STRAIGHT = 28
+    FLUSH = 29
+    FULL_HOUSE = 30
+    FOUR_OF_A_KIND = 31
+    STRAIGHT_FLUSH = 32
+    ROYAL_FLUSH = 33
 
     # override the comparator functions
     def __lt__(self, other):
@@ -160,10 +171,10 @@ class Hand:
 
         for combination in all_combinations:
             hand_score = self.rank_hand(combination)
-            if best_score is None or hand_score.hand > best_score.hand or (best_score.hand == hand_score.hand and hand_score.tie_breaker > best_score.tie_breaker):
+            if best_score is None or hand_score.hand > best_score.hand:
                 best_score = hand_score
 
-            self.value = hand_score
+        self.value = best_score
         return best_score
     
     def rank_hand(self, cards) -> PokerScore:
@@ -183,11 +194,12 @@ class Hand:
         elif self.is_three_of_a_kind(cards):
             return PokerScore(PokerHands.THREE_OF_A_KIND, self.get_high_card(cards), cards)
         elif self.is_two_pair(cards):
-            return PokerScore(PokerHands.TWO_PAIR, self.get_high_card(cards)), cards
+            highest_pair = self.get_two_pair_rank(cards)[0]
+            return PokerScore(PokerHands(PokerHands.PAIR_OF_ACES.value+highest_pair), self.get_high_card(cards)), cards
         elif self.is_one_pair(cards):
             pair_value = self.get_one_pair_rank(cards)  # Get the rank of the pair
             kickers = sorted([card.rank.value for card in cards if card.rank.value != pair_value], reverse=True)  # Kickers are the highest other cards
-            pair = PokerHands(pair_value + 1)  # Pair of twos is rank 2, etc.
+            pair = PokerHands(pair_value)  # Pair of twos is rank 2, etc.
             return PokerScore(pair, max(kickers), cards)
         else:
             return PokerScore(PokerHands.HIGH_CARD, self.get_high_card(cards), cards)
